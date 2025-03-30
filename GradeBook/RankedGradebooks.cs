@@ -6,32 +6,31 @@ namespace GradeBook.GradeBooks
 {
     public class RankedGradeBook : BaseGradeBook
     {
-        public RankedGradeBook(string name, bool isWeighted) : base(name, isWeighted)
+        public RankedGradeBook(string name) : base(name)
         {
-            Type = GradeBookType.Ranked;
+            Type = Enums.GradeBookType.Ranked;
         }
 
         public override char GetLetterGrade(double averageGrade)
         {
             if (Students.Count < 5)
-                throw new InvalidOperationException("Ranked grading requires at least 5 students.");
+                throw new InvalidOperationException("Ranked grading requires at least 5 students");
 
-            var threshold = (int)Math.Ceiling(Students.Count * 0.2); // 20% of students
-            var sortedGrades = Students
-                .Select(s => s.AverageGrade)
-                .OrderByDescending(g => g)
-                .ToList();
+            var threshold = (int)Math.Ceiling(Students.Count * 0.2);
+            var grades = Students.OrderByDescending(s => s.AverageGrade)
+                                .Select(s => s.AverageGrade)
+                                .ToList();
 
-            if (sortedGrades.IndexOf(averageGrade) < threshold)
+            if (grades[threshold - 1] <= averageGrade)
                 return 'A';
-            if (sortedGrades.IndexOf(averageGrade) < threshold * 2)
+            else if (grades[(threshold * 2) - 1] <= averageGrade)
                 return 'B';
-            if (sortedGrades.IndexOf(averageGrade) < threshold * 3)
+            else if (grades[(threshold * 3) - 1] <= averageGrade)
                 return 'C';
-            if (sortedGrades.IndexOf(averageGrade) < threshold * 4)
+            else if (grades[(threshold * 4) - 1] <= averageGrade)
                 return 'D';
-
-            return 'F';
+            else
+                return 'F';
         }
 
         public override void CalculateStatistics()
